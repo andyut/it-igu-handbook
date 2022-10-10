@@ -1,0 +1,1 @@
+select * from ordr a where a.u
