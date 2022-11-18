@@ -33,7 +33,7 @@ select
 from opor a
 inner join ocrd b on a.cardcode = b.cardcode 
 inner join ocrg c on b.groupcode = c.groupcode 
-inner join opdn d on a.DocEntry = d.U_IGU_SOdocEntry
+left outer join opdn d on a.DocEntry = d.U_IGU_SOdocEntry
 
 where a.canceled='N'  
 and convert(varchar,a.docdate,112) between @datefrom and @dateto
