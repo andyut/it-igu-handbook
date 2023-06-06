@@ -47,8 +47,22 @@
                                                 a.U_PrintFaktur ,
                                                 a.U_PrintKwitansi ,
                                                 a.U_PrintFP ,
-                                                a.U_PenagihanType
-                                                a.U_Invoicing ,
+                                                a.U_PenagihanType,
+                                                'Catatan TukarFaktur: ' + isnull(a.Notes,'')  + char(13)+'<br/>'+
+                                                'Faktur Pengiriman  : ' + isnull(a.U_delivery_invoice,'N') + char(13)+'<br/>'+
+                                                'Print Faktur  : ' + isnull(a.U_PrintFaktur,'Y') + char(13)+'<br/>'+
+                                                'Print Kwitansi  : ' + 
+                                                                            case isnull(a.U_PrintKwitansi,'N')
+                                                                                    when 'N' then 'Tidak Print Kwitansi'
+                                                                                    when 'Y' then 'Print Kwitansi'
+                                                                                    when 'O' then 'Print Kwitansi Per Outlet'
+                                                                                    when 'P' then 'Print Kwitansi Per PO '
+                                                                            end + char(13)+'<br/>'+
+                                                'Print Faktur Pajak  : ' + isnull(a.U_PrintFP,'N')+ char(13)+'<br/>'+
+                                                'Tukar Faktur  : ' + isnull(a.U_PenagihanType,'Y') + char(13)+'<br/>' +
+                                                'Lain Lain : ' + isnull(a.free_text,'')+ char(13)+'<br/>'
+                                                
+                                                as printsummary 
 												from OCRD (NOLOCK) A   
 												INNER JOIN OCRG (NOLOCK)  B ON A.GroupCode = B.GroupCode   
 												INNER JOIN OSLP (NOLOCK)  C ON A.SLPCODE = C.SlpCode  
