@@ -28,7 +28,13 @@
                                                 U_IGU_checklistdate varchar(100),
                                                 U_Cust_GR_No varchar(100),
 												arperson varchar(50),
-                                                transtype varchar(100))
+                                                transtype varchar(100),
+												topcount int ,
+												topdesc varchar(200),
+												datediff numeric(19,2),
+												denda numeric(19,2),
+												dendastatus varchar(5)
+												)
 
 						set @datefrom = '20230501'
 						set @cardname = ''
@@ -63,11 +69,19 @@
                                 a.U_IGU_checklistdate ,
                                 a.U_Cust_GR_No,
 								b.U_AR_Person ,
-								'Invoice' transtype
+								'Invoice' transtype ,
+								d.ExtraDays topcount,
+								d.PymntGroup ,
+								DATEDIFF(day, a.docduedate,DATEADD(day,a.docduedate,7)),
+								0,
+								'N'
+
 								
 
 						from oinv a
 						inner join ocrd b on a.cardcode = b.cardcode 
+						inner join ocrg c on b.GroupCode = c.GroupCode 
+						inner join octg d on b.GroupNum = d.GroupNum
 						where a.canceled='N' and a.DocStatus='O' 
 						and a.ctlAccount = @Account 
 						and a.cardcode + a.cardname like '%' +  @cardname + '%'
@@ -105,9 +119,17 @@
                                 a.U_IGU_checklistdate ,
                                 a.U_Cust_GR_No,
 								b.U_AR_Person ,
-								'CN' doctype
+								'CN' doctype,
+								b.U_AR_Person,
+								d.ExtraDays topcount,
+								d.PymntGroup ,
+								DATEDIFF(day, a.docduedate,DATEADD(day,a.docduedate,7)),
+								0,
+								'N'
 						from orin a
 						inner join ocrd  b on a.cardcode = b.cardcode 
+						inner join ocrg c on b.GroupCode = c.GroupCode 
+						inner join octg d on b.GroupNum = d.GroupNum
 						where a.canceled='N' and a.DocStatus='O' 
 						and a.ctlAccount = @Account 
 						and a.cardcode + a.cardname  like '%' +  @cardname + '%'
@@ -120,9 +142,9 @@
 								convert(varchar,a.refdate,23) docdate , 
 								convert(varchar,a.taxdate,23) taxdate , 
 								convert(varchar,a.duedate,23) duedate , 
-								c.number Docnum  , 
-								c.number numatCard,
-								isnull(c.u_trans_no,'') +'-' + a.LineMemo U_Kw_No ,
+								e.number Docnum  , 
+								e.number numatCard,
+								isnull(e.u_trans_no,'') +'-' + a.LineMemo U_Kw_No ,
 								'' U_IDU_FPajak ,
 								a.ShortName, 
 								b.cardname,
@@ -143,12 +165,20 @@
                                 '' U_IGU_checklistdate ,
                                 '' U_Cust_GR_No,
 								b.U_AR_Person ,
-								'UnReconsile' trasntype
+								'UnReconsile' trasntype,
+								d.ExtraDays topcount,
+								d.PymntGroup ,
+								0,
+								0,
+								'N'
+
 								
 
 						from JDT1 a
 						inner join ocrd b on a.ShortName = b.cardcode and a.TransType in (24,30)
-                        inner join ojdt c on a.transid = c.transid 
+						inner join ocrg c on b.GroupCode = c.GroupCode 
+						inner join octg d on b.GroupNum = d.GroupNum
+                        inner join ojdt e on a.transid = e.transid 
 						where  b.cardcode + b.cardname like '%' +  @cardname + '%'
 						and isnull(B.U_AR_Person,'')  like '%' +  @arperson + '%'
 						and a.Account = @Account 
